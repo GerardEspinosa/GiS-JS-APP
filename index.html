@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html>
-
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>GIS-APP-GerardEspinosa</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet'/>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+</head>
 <body>
-
-    <p>Click the button to get your coordinates.</p>
-
-    <button onclick="getLocation()">Try It</button>
-
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
     <p id="demo"></p>
-
     <script>
-        var x = document.getElementById("demo");
+        const start = document.querySelector("#start");
+        const stop = document.querySelector("#stop");
+        const x = document.querySelector("#demo");
+        const coordinates = [];
 
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                x.innerHTML = "Geolocation is not supported by this browser.";
-            }
-        }
-
-        function showPosition(position) {
-            x.innerHTML = "Latitude: " + position.coords.latitude +
-                "<br>Longitude: " + position.coords.longitude;
-        }
-
-        function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    x.innerHTML = "User denied the request for Geolocation."
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    x.innerHTML = "Location information is unavailable."
-                    break;
-                case error.TIMEOUT:
-                    x.innerHTML = "The request to get user location timed out."
-                    break;
-                case error.UNKNOWN_ERROR:
-                    x.innerHTML = "An unknown error occurred."
-                    break;
-            }
-        }
+        start.addEventListener("click", () => {
+            navigator.geolocation.watchPosition(
+                data => {
+                    console.log(data);
+                    x.innerHTML = "Latitude : " + data.coords.latitude +
+                    "<br>Longitude: " + data.coords.longitude;
+                    coordinates.push(data.coords.latitude, data.coords.longitude);
+                    window.localStorage.setItem("coordinates", JSON.stringify(coordinates));
+                }, 
+                (error) => console.log(error), 
+                {
+                    enableHighAccuracy: true
+                }
+            );
+        });
     </script>
-
+    <div id='map' style='width: 400px; height: 300px;'></div>
+    <script>
+      mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11'
+      });
+    </script>    
 </body>
-
 </html>
